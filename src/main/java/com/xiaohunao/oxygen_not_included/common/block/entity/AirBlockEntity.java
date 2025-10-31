@@ -7,6 +7,7 @@ import com.google.common.collect.Maps;
 import com.xiaohunao.oxygen_not_included.common.gas.Gas;
 import com.xiaohunao.oxygen_not_included.common.init.ONIBlockEntityTypes;
 
+import com.xiaohunao.oxygen_not_included.common.init.ONIGases;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.protocol.Packet;
@@ -33,7 +34,7 @@ public class AirBlockEntity extends BlockEntity{
     }
 
     public void initGas(){
-//        gasMap.put(ONIGases.OXYGEN.get(), Gas.STANDARD_GAS_CONCENTRATION);
+        gasMap.put(ONIGases.OXYGEN.get(), Gas.STANDARD_GAS_CONCENTRATION);
     }
 
     public Map<Gas, Integer> getGasMap() {

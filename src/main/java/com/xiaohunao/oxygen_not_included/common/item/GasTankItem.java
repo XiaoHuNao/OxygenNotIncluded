@@ -66,14 +66,17 @@ public class GasTankItem extends Item {
         BlockEntity be = level.getBlockEntity(targetPos);
         if (!(be instanceof AirBlockEntity air)) return InteractionResult.PASS;
 
-        // 1) 如果罐子有气体，优先向空气方块释放
+        Player player = ctx.getPlayer();
+        boolean isCreative = player != null && player.getAbilities().instabuild;
         Map<Gas, Integer> all = tank.getAll();
         if (!all.isEmpty()) {
             Gas gas = all.keySet().iterator().next();
             int amt = all.get(gas);
             int moved = new com.xiaohunao.oxygen_not_included.common.capability.impl.AirBlockGasStorage(air).insert(gas, Math.min(amt, 250), false);
             if (moved > 0) {
-                tank.extract(gas, moved, false);
+                if (!isCreative) {
+                    tank.extract(gas, moved, false);
+                }
                 return InteractionResult.CONSUME;
             }
             return InteractionResult.PASS;
@@ -88,7 +91,9 @@ public class GasTankItem extends Item {
         if (dominant == null || max <= 0) return InteractionResult.PASS;
         int moved = tank.insert(dominant, Math.min(max, 250), false);
         if (moved > 0) {
-            air.setGasAmount(dominant, max - moved);
+            if (!isCreative) {
+                air.setGasAmount(dominant, max - moved);
+            }
             return InteractionResult.CONSUME;
         }
         return InteractionResult.PASS;
@@ -96,7 +101,6 @@ public class GasTankItem extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        // 右键空气时：对准脚下/眼前空气方块进行释放/吸取
         return InteractionResultHolder.pass(player.getItemInHand(hand));
     }
 }
