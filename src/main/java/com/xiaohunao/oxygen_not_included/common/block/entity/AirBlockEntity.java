@@ -1,17 +1,21 @@
 package com.xiaohunao.oxygen_not_included.common.block.entity;
 
+import java.util.Map;
+import java.util.Objects;
+
 import com.google.common.collect.Maps;
 import com.xiaohunao.oxygen_not_included.common.gas.Gas;
 import com.xiaohunao.oxygen_not_included.common.init.ONIBlockEntityTypes;
-import com.xiaohunao.oxygen_not_included.common.init.ONIGases;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-
-import java.util.Map;
-import java.util.Objects;
 
 public class AirBlockEntity extends BlockEntity{
     private final Map<Gas, Integer> gasMap = Maps.newHashMap();
@@ -29,7 +33,7 @@ public class AirBlockEntity extends BlockEntity{
     }
 
     public void initGas(){
-        gasMap.put(ONIGases.OXYGEN.get(), Gas.STANDARD_GAS_CONCENTRATION);
+//        gasMap.put(ONIGases.OXYGEN.get(), Gas.STANDARD_GAS_CONCENTRATION);
     }
 
     public Map<Gas, Integer> getGasMap() {
@@ -52,7 +56,10 @@ public class AirBlockEntity extends BlockEntity{
             gasMap.put(gas, amount);
         }
         setChanged();
+        sync();
     }
+
+
 
     public int getGasAmount(Gas gas) {
         return gasMap.getOrDefault(gas, 0);
@@ -93,4 +100,31 @@ public class AirBlockEntity extends BlockEntity{
         }
     }
 
+    @Override
+    public net.minecraft.nbt.CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider provider) {
+        net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
+        saveAdditional(tag, provider);
+        return tag;
+    }
+
+    @Override
+    public void handleUpdateTag(net.minecraft.nbt.CompoundTag tag, net.minecraft.core.HolderLookup.Provider provider) {
+        loadAdditional(tag, provider);
+    }
+
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    private void sync() {
+        if (this.level == null) return;
+        if (!this.level.isClientSide) {
+            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
+        }
+    }
+
+    public static void tickServer(Level level, BlockPos pos, BlockState blockState, AirBlockEntity blockEntity) {
+
+    }
 }

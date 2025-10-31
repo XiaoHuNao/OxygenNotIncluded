@@ -5,8 +5,9 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import com.xiaohunao.oxygen_not_included.common.init.ONIBlockEntityTypes;
 import com.xiaohunao.oxygen_not_included.common.init.ONIGases;
-import com.xiaohunao.oxygen_not_included.common.init.ONIParticleTypes;
+import com.xiaohunao.oxygen_not_included.common.init.ONIItems;
 import com.xiaohunao.oxygen_not_included.common.init.ONIRegistries;
+import com.xiaohunao.oxygen_not_included.common.init.ONICreativeTabs;
 
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -26,7 +27,8 @@ public class OxygenNotIncluded {
 
         ONIGases.GAS.register(modEventBus);
         ONIBlockEntityTypes.BLOCK_ENTITY_TYPE.register(modEventBus);
-        ONIParticleTypes.PARTICLE_TYPE.register(modEventBus);
+        ONIItems.ITEMS.register(modEventBus);
+        ONICreativeTabs.CREATIVE_TAB.register(modEventBus);
     }
 
     public static ResourceLocation asResource(String path) {
