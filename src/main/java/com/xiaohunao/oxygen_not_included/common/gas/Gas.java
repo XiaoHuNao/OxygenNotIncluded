@@ -1,13 +1,20 @@
 package com.xiaohunao.oxygen_not_included.common.gas;
 
-public class Gas {
-    //一个空气方块标准气体含量为1000ml
-    public static final int STANDARD_GAS_CONCENTRATION = 1000;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 
-
-    public final GasProperties properties;
+public abstract class Gas {
+    private final GasProperties properties;
 
     public Gas(GasProperties properties) {
         this.properties = properties;
     }
+
+    public GasProperties getProperties() {
+        return properties;
+    }
+
+
+    public abstract BlockState createBlock();
 }

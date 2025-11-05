@@ -17,5 +17,4 @@ public class ONIRegistries {
     public static void registerRegistries(NewRegistryEvent event) {
         event.register(GAS);
     }
-
 }

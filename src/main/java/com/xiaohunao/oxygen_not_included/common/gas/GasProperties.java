@@ -1,53 +1,85 @@
 package com.xiaohunao.oxygen_not_included.common.gas;
 
-/**
- * 气体渲染与物性参数
- */
 public class GasProperties {
-    /** ARGB 颜色（含透明度） */
-    private final int argbColor;
-    /** 相对密度（空气=1.0） */
-    private final float relativeDensity;
-    /** 可见性（0-1，影响渲染透明度基准） */
-    private final float visibility;
-    /** 流动速度系数（0-1，用于扩散/插值） */
-    private final float flowSpeed;
+    //气体颜色
+    public final int color;
+    //气体密度
+    public final float density;
+    //气体粘度
+    public final float viscosity;
+    //气体扩散速度
+    public final float diffusion;
+    //是否窒息
+    public final boolean suffocation;
+    //是否提供光照
+    public final int light;
 
-    public GasProperties(int argbColor, float relativeDensity, float visibility, float flowSpeed) {
-        this.argbColor = argbColor;
-        this.relativeDensity = relativeDensity;
-        this.visibility = visibility;
-        this.flowSpeed = flowSpeed;
+    private GasProperties(int color, float density, float viscosity, float diffusion, boolean suffocation, int light) {
+        this.color = color;
+        this.density = density;
+        this.viscosity = viscosity;
+        this.diffusion = diffusion;
+        this.suffocation = suffocation;
+        this.light = light;
     }
 
-    public int getArgbColor() {
-        return argbColor;
+    public GasProperties copy() {
+        return new GasProperties(color, density, viscosity, diffusion, suffocation, light);
     }
 
-    public float getRelativeDensity() {
-        return relativeDensity;
+    public GasProperties withColor(int color) {
+        return new GasProperties(color, density, viscosity, diffusion, suffocation, light);
     }
 
-    public float getVisibility() {
-        return visibility;
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public float getFlowSpeed() {
-        return flowSpeed;
+    public static GasProperties builder(int color) {
+        return new Builder().color(color).build();
     }
 
-    public static GasProperties oxygen() {
-        // 天蓝，较轻，可见性中等，流动适中
-        return new GasProperties(0xFF7EC8E3, 0.95f, 0.6f, 0.6f);
-    }
+    public static class Builder {
+        private int color = 0xFFFFFFFF;
+        private float density = 1.0f;
+        private float viscosity = 1.0f;
+        private float diffusion = 1.0f;
+        private boolean suffocation = false;
+        private int light = 0;
 
-    public static GasProperties carbonDioxide() {
-        // 灰色，较重，可见性较高，流动略慢
-        return new GasProperties(0xFF8E8E8E, 1.50f, 0.75f, 0.45f);
-    }
+        public Builder color(int color) {
+            this.color = color;
+            return this;
+        }
 
-    public static GasProperties hydrogen() {
-        // 淡黄，极轻，可见性较低，流动较快
-        return new GasProperties(0xFFEFE6A7, 0.07f, 0.4f, 0.8f);
+        public Builder density(float density) {
+            this.density = density;
+            return this;
+        }
+
+        public Builder viscosity(float viscosity) {
+            this.viscosity = viscosity;
+            return this;
+        }
+
+        public Builder diffusion(float diffusion) {
+            this.diffusion = diffusion;
+            return this;
+        }
+
+        public Builder suffocation(boolean suffocation) {
+            this.suffocation = suffocation;
+            return this;
+        }
+
+        public Builder light(int light) {
+            this.light = light;
+            return this;
+        }
+
+        public GasProperties build() {
+            return new GasProperties(color, density, viscosity, diffusion, suffocation, light);
+        }
+
     }
 }

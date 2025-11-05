@@ -1,10 +1,10 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.xiaohunao.oxygen_not_included.common.mixin",
+  "package": "com.xiaohunao.oxygen_not_included.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "AirBlockMixin"
+    "BlockEntityTypeMixin"
   ],
   "client": [
   ],

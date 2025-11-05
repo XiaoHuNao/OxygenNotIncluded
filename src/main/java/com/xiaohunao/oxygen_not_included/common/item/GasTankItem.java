@@ -1,107 +1,175 @@
 package com.xiaohunao.oxygen_not_included.common.item;
 
-import java.util.List;
-import java.util.Map;
-
-import com.xiaohunao.oxygen_not_included.OxygenNotIncluded;
-import com.xiaohunao.oxygen_not_included.common.block.entity.AirBlockEntity;
-import com.xiaohunao.oxygen_not_included.common.capability.IGasStorage;
-import com.xiaohunao.oxygen_not_included.common.capability.impl.ItemStackGasStorage;
+import com.xiaohunao.oxygen_not_included.common.component.GasTankData;
+import com.xiaohunao.oxygen_not_included.common.init.ONIComponents;
+import com.xiaohunao.oxygen_not_included.common.capability.IGasHandlerItem;
+import com.xiaohunao.oxygen_not_included.common.capability.IGasTank;
+import com.xiaohunao.oxygen_not_included.common.capability.SingleTank;
 import com.xiaohunao.oxygen_not_included.common.gas.Gas;
-import com.xiaohunao.oxygen_not_included.common.init.ONIRegistries;
-
-import net.minecraft.ChatFormatting;
+import com.xiaohunao.oxygen_not_included.common.gas.GasStack;
+import com.xiaohunao.oxygen_not_included.common.util.WorldUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
-
+/**
+ * 只能存储一种气体的物品气罐。
+ * - 使用 NBT 存储：GasId（字符串，命名空间:id）与 Amount（int，毫升）
+ * - 提供 IGasHandlerItem 能力，包含一个单槽 IGasTank
+ * - 右键方块尝试将一格标准量气体放置为气体方块
+ */
 public class GasTankItem extends Item {
-    public static final int DEFAULT_CAPACITY = 1000;
+    private final int capacity;
 
-    public GasTankItem(Properties properties) {
-        super(properties);
+    public GasTankItem(Properties properties, int capacity) {
+        super(properties.stacksTo(1));
+        this.capacity = capacity;
     }
 
-    // 简化：不使用 NeoForge 能力，直接用 NBT 存储访问
-
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        IGasStorage storage = new ItemStackGasStorage(stack, DEFAULT_CAPACITY);
-        Map<Gas, Integer> all = storage.getAll();
-            if (all.isEmpty()) {
-                tooltip.add(Component.translatable(OxygenNotIncluded.asDescriptionId("gas_tank.empty")).withStyle(ChatFormatting.GRAY));
-            } else {
-                for (Map.Entry<Gas, Integer> e : all.entrySet()) {
-                    ResourceLocation id = ONIRegistries.GAS.getKey(e.getKey());
-                    String name = id == null ? "unknown" : id.getPath();
-                    tooltip.add(Component.literal(name + ": " + e.getValue() + "ml").withStyle(ChatFormatting.AQUA));
-                }
-            }
+    public int getCapacity() {
+        return capacity;
     }
 
     @Override
-    public InteractionResult useOn(UseOnContext ctx) {
-        Level level = ctx.getLevel();
-        if (level.isClientSide) return InteractionResult.SUCCESS;
-        
-        ItemStack stack = ctx.getItemInHand();
-        IGasStorage tank = new ItemStackGasStorage(stack, DEFAULT_CAPACITY);
-
-        BlockPos clickedPos = ctx.getClickedPos();
-        BlockState clickedState = level.getBlockState(clickedPos);
-        BlockPos targetPos = clickedState.isAir() ? clickedPos : clickedPos.relative(ctx.getClickedFace());
-
-        BlockEntity be = level.getBlockEntity(targetPos);
-        if (!(be instanceof AirBlockEntity air)) return InteractionResult.PASS;
-
-        Player player = ctx.getPlayer();
-        boolean isCreative = player != null && player.getAbilities().instabuild;
-        Map<Gas, Integer> all = tank.getAll();
-        if (!all.isEmpty()) {
-            Gas gas = all.keySet().iterator().next();
-            int amt = all.get(gas);
-            int moved = new com.xiaohunao.oxygen_not_included.common.capability.impl.AirBlockGasStorage(air).insert(gas, Math.min(amt, 250), false);
-            if (moved > 0) {
-                if (!isCreative) {
-                    tank.extract(gas, moved, false);
-                }
-                return InteractionResult.CONSUME;
-            }
-            return InteractionResult.PASS;
-        }
-
-        // 2) 罐子空：从空气方块抽取主导气体
-        Gas dominant = null;
-        int max = 0;
-        for (Map.Entry<Gas, Integer> e : air.getGasMap().entrySet()) {
-            if (e.getValue() > max) { max = e.getValue(); dominant = e.getKey(); }
-        }
-        if (dominant == null || max <= 0) return InteractionResult.PASS;
-        int moved = tank.insert(dominant, Math.min(max, 250), false);
-        if (moved > 0) {
-            if (!isCreative) {
-                air.setGasAmount(dominant, max - moved);
-            }
-            return InteractionResult.CONSUME;
-        }
-        return InteractionResult.PASS;
+    public @NotNull InteractionResultHolder<ItemStack> use(Level level, Player player, @NotNull InteractionHand hand) {
+        // 暂无空手使用逻辑，沿用默认
+        return super.use(level, player, hand);
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        return InteractionResultHolder.pass(player.getItemInHand(hand));
+    public @NotNull net.minecraft.world.InteractionResult useOn(UseOnContext context) {
+        Level level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        Player player = context.getPlayer();
+        ItemStack stack = context.getItemInHand();
+        if (player == null) {
+            return net.minecraft.world.InteractionResult.PASS;
+        }
+
+        GasStack contained = getGas(stack);
+        if (contained.isEmpty() || contained.getAmount() < GasStack.STANDARD_PRESSURE) {
+            return net.minecraft.world.InteractionResult.PASS;
+        }
+
+        BlockState state = level.getBlockState(pos);
+        BlockPos placeAt = state.canBeReplaced() ? pos : pos.relative(context.getClickedFace());
+
+        boolean placed = WorldUtils.tryPlaceContainedGas(level, placeAt, contained.getGas(), player);
+        if (placed) {
+            drain(stack, GasStack.STANDARD_PRESSURE, true);
+            return net.minecraft.world.InteractionResult.sidedSuccess(level.isClientSide);
+        }
+        return net.minecraft.world.InteractionResult.PASS;
+    }
+
+    public static Gas getStoredGas(ItemStack stack) {
+        GasTankData data = stack.get(ONIComponents.GAS_TANK.get());
+        if (data == null || data.isEmpty()) return null;
+        return data.getGas();
+    }
+
+    public static int getStoredAmount(ItemStack stack) {
+        GasTankData data = stack.get(ONIComponents.GAS_TANK.get());
+        return data == null ? 0 : data.getAmount();
+    }
+
+    public static void setStored(ItemStack stack, Gas gas, int amount) {
+        if (gas == null || amount <= 0) {
+            stack.remove(ONIComponents.GAS_TANK.get());
+        } else {
+            GasTankData data = stack.get(ONIComponents.GAS_TANK.get());
+            if (data == null) data = new GasTankData();
+            data.setGas(gas);
+            data.setAmount(amount);
+            stack.set(ONIComponents.GAS_TANK.get(), data);
+        }
+    }
+
+    public static GasStack getGas(ItemStack stack) {
+        Gas gas = getStoredGas(stack);
+        int amt = getStoredAmount(stack);
+        return gas == null || amt <= 0 ? GasStack.EMPTY : new GasStack(gas, amt);
+    }
+
+    // --- 能力实现 ---
+    public static class GasHandler implements IGasHandlerItem {
+        private final ItemStack container;
+
+        public GasHandler(ItemStack container) {
+            this.container = container;
+        }
+
+        @Override
+        public ItemStack getContainer() {
+            return container;
+        }
+
+        private GasTankItem asItem() {
+            return (GasTankItem) container.getItem();
+        }
+
+        @Override
+        public int getTanks() {
+            return 1;
+        }
+
+        @Override
+        public IGasTank getTank(int tank) {
+            return new SingleTank(container, asItem().getCapacity());
+        }
+
+        @Override
+        public GasStack getGasInTank(int tank) {
+            return GasTankItem.getGas(container).copy();
+        }
+
+        @Override
+        public int getTankCapacity(int tank) {
+            return asItem().getCapacity();
+        }
+
+        @Override
+        public boolean isGasValid(int tank, GasStack stack) {
+            return new SingleTank(container, asItem().getCapacity()).isGasValid(stack);
+        }
+
+        @Override
+        public int fill(GasStack resource, IGasTank.GasAction action) {
+            return new SingleTank(container, asItem().getCapacity()).fill(resource, action);
+        }
+
+        @Override
+        public GasStack drain(GasStack resource, IGasTank.GasAction action) {
+            if (resource == null || resource.isEmpty()) return GasStack.EMPTY;
+            GasStack current = GasTankItem.getGas(container);
+            if (current.isEmpty() || current.getGas() != resource.getGas()) return GasStack.EMPTY;
+            int toDrain = Math.min(resource.getAmount(), current.getAmount());
+            return new SingleTank(container, asItem().getCapacity()).drain(toDrain, action);
+        }
+
+        @Override
+        public GasStack drain(int maxDrain, IGasTank.GasAction action) {
+            return new SingleTank(container, asItem().getCapacity()).drain(maxDrain, action);
+        }
+    }
+
+
+
+    private static void drain(ItemStack stack, int amount, boolean execute) {
+        GasStack current = getGas(stack);
+        if (current.isEmpty() || amount <= 0) return;
+        int toDrain = Math.min(amount, current.getAmount());
+        if (execute && toDrain > 0) {
+            int remain = current.getAmount() - toDrain;
+            setStored(stack, remain > 0 ? current.getGas() : null, remain);
+        }
     }
 }
 
