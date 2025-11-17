@@ -7,6 +7,7 @@ import com.xiaohunao.oxygen_not_included.common.gas.Gas;
 import com.xiaohunao.oxygen_not_included.common.init.ONIBlockEntityTypes;
 import com.xiaohunao.oxygen_not_included.common.init.ONIRegistries;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -24,17 +25,17 @@ import org.jetbrains.annotations.Nullable;
 
 public class GasBlock extends BaseEntityBlock {
     public static final MapCodec<GasBlock> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ONIRegistries.GAS.byNameCodec().fieldOf("gas").forGetter(GasBlock::getGas)
+            ONIRegistries.GAS.holderByNameCodec().fieldOf("gas").forGetter(GasBlock::getGas)
     ).apply(instance,GasBlock::new));
 
-    private final Gas gas;
+    private final Holder<Gas> gas;
 
-    public GasBlock(Gas gas) {
+    public GasBlock(Holder<Gas> gas) {
         super(BlockBehaviour.Properties.of().replaceable().noCollission().noLootTable().air());
         this.gas = gas;
     }
 
-    public Gas getGas() {
+    public Holder<Gas> getGas() {
         return gas;
     }
 

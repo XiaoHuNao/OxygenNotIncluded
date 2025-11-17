@@ -1,6 +1,10 @@
 package com.xiaohunao.oxygen_not_included.common.gas;
 
 public class GasProperties {
+    public static final GasProperties EMPTY = GasProperties.builder().build();
+
+    //摩尔质量
+    public final double moles;
     //气体颜色
     public final int color;
     //气体密度
@@ -9,26 +13,33 @@ public class GasProperties {
     public final float viscosity;
     //气体扩散速度
     public final float diffusion;
-    //是否窒息
-    public final boolean suffocation;
+    //是否允许呼吸
+    public final boolean canBreathe;
+    //比热容
+    public final double heatCapacity;
+    //导热率
+    public final double thermalConductivity;
     //是否提供光照
     public final int light;
 
-    private GasProperties(int color, float density, float viscosity, float diffusion, boolean suffocation, int light) {
+    private GasProperties(double moles,int color, float density, float viscosity, float diffusion,double heatCapacity,double thermalConductivity,int light,boolean canBreathe) {
+        this.moles = moles;
         this.color = color;
         this.density = density;
         this.viscosity = viscosity;
         this.diffusion = diffusion;
-        this.suffocation = suffocation;
+        this.heatCapacity = heatCapacity;
+        this.thermalConductivity = thermalConductivity;
         this.light = light;
+        this.canBreathe = canBreathe;
     }
 
     public GasProperties copy() {
-        return new GasProperties(color, density, viscosity, diffusion, suffocation, light);
+        return new GasProperties(moles ,color, density, viscosity, diffusion, heatCapacity, thermalConductivity, light, canBreathe);
     }
 
     public GasProperties withColor(int color) {
-        return new GasProperties(color, density, viscosity, diffusion, suffocation, light);
+        return new GasProperties(moles, color, density, viscosity, diffusion, heatCapacity, thermalConductivity, light, canBreathe);
     }
 
     public static Builder builder() {
@@ -40,12 +51,20 @@ public class GasProperties {
     }
 
     public static class Builder {
+        private double moles = 1.0;
         private int color = 0xFFFFFFFF;
         private float density = 1.0f;
         private float viscosity = 1.0f;
         private float diffusion = 1.0f;
-        private boolean suffocation = false;
+        private double heatCapacity = 1.0;
+        private double thermalConductivity = 1.0;
         private int light = 0;
+        private boolean canBreathe = true;
+
+        public Builder moles(double moles) {
+            this.moles = moles;
+            return this;
+        }
 
         public Builder color(int color) {
             this.color = color;
@@ -67,8 +86,13 @@ public class GasProperties {
             return this;
         }
 
-        public Builder suffocation(boolean suffocation) {
-            this.suffocation = suffocation;
+        public Builder heatCapacity(double heatCapacity) {
+            this.heatCapacity = heatCapacity;
+            return this;
+        }
+
+        public Builder thermalConductivity(double thermalConductivity) {
+            this.thermalConductivity = thermalConductivity;
             return this;
         }
 
@@ -77,8 +101,13 @@ public class GasProperties {
             return this;
         }
 
+        public Builder canBreathe(boolean canBreathe) {
+            this.canBreathe = canBreathe;
+            return this;
+        }
+
         public GasProperties build() {
-            return new GasProperties(color, density, viscosity, diffusion, suffocation, light);
+            return new GasProperties(moles, color, density, viscosity, diffusion, heatCapacity, thermalConductivity, light, canBreathe);
         }
 
     }

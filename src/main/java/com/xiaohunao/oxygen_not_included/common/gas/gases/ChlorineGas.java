@@ -4,20 +4,20 @@ import com.xiaohunao.oxygen_not_included.common.block.GasBlock;
 import com.xiaohunao.oxygen_not_included.common.gas.Gas;
 import com.xiaohunao.oxygen_not_included.common.gas.GasProperties;
 import com.xiaohunao.oxygen_not_included.common.init.ONIBlocks;
-import net.minecraft.world.level.block.state.BlockState;
 
-public class CarbonDioxideGas extends Gas {
-    public CarbonDioxideGas() {
+public class ChlorineGas extends Gas {
+    public ChlorineGas() {
         super(GasProperties.builder()
-                .color(0xFF404040)
-                .density(44.01f)
-                .heatCapacity(0.846)
+                .color(0x80FFE0E0)
+                .density(3.21f)
+                .heatCapacity(0.48)
                 .build()
         );
     }
 
     @Override
     public GasBlock createBlock() {
-        return ONIBlocks.CARBON_DIOXIDE.get();
+        return ONIBlocks.CHLORINE.get();
     }
 }
+

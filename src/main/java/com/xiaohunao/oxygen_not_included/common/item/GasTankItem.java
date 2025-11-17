@@ -1,6 +1,7 @@
 package com.xiaohunao.oxygen_not_included.common.item;
 
 import com.xiaohunao.oxygen_not_included.common.component.GasTankData;
+import com.xiaohunao.oxygen_not_included.common.block.entity.GasBlockEntity;
 import com.xiaohunao.oxygen_not_included.common.init.ONIComponents;
 import com.xiaohunao.oxygen_not_included.common.capability.IGasHandlerItem;
 import com.xiaohunao.oxygen_not_included.common.capability.IGasTank;
@@ -16,6 +17,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
@@ -63,7 +65,16 @@ public class GasTankItem extends Item {
 
         boolean placed = WorldUtils.tryPlaceContainedGas(level, placeAt, contained.getGas(), player);
         if (placed) {
-            drain(stack, GasStack.STANDARD_PRESSURE, true);
+            BlockEntity blockEntity = level.getBlockEntity(placeAt);
+            if (blockEntity instanceof GasBlockEntity gasBE){
+                int toInject = Math.min(GasStack.STANDARD_PRESSURE, contained.getAmount());
+                long newAmount = gasBE.getAmount() + toInject;
+                gasBE.setAmount(newAmount);
+            }
+            // 创造模式下不消耗气体，方便调试
+            if (!player.isCreative()) {
+                drain(stack, GasStack.STANDARD_PRESSURE, true);
+            }
             return net.minecraft.world.InteractionResult.sidedSuccess(level.isClientSide);
         }
         return net.minecraft.world.InteractionResult.PASS;

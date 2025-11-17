@@ -19,10 +19,10 @@ public class ONICreativeTabs {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, OxygenNotIncluded.MODID);
 
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MAIN = CREATIVE_MODE_TABS.register(
-            "main",
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> GAS_TANKS = CREATIVE_MODE_TABS.register(
+            "gas_tanks",
             () -> CreativeModeTab.builder()
-                    .title(Component.translatable(OxygenNotIncluded.asDescriptionId("creative_tab.main")))
+                    .title(Component.translatable(OxygenNotIncluded.asDescriptionId("creative_tab.gas_tanks")))
                     .icon(() -> new ItemStack(ONIItems.GAS_TANK.get()))
                     .displayItems((params, output) -> {
                         // 遍历所有已注册的气体，为每种气体添加一个满的储气罐
@@ -39,6 +39,34 @@ public class ONICreativeTabs {
                     })
                     .build()
     );
+
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MAIN = CREATIVE_MODE_TABS.register(
+            "main",
+            () -> CreativeModeTab.builder()
+                    .title(Component.translatable(OxygenNotIncluded.asDescriptionId("creative_tab.main")))
+                    .icon(() -> new ItemStack(ONIItems.GAS_GOGGLES.get()))
+                    .displayItems((params, output) -> {
+                        output.accept(ONIItems.GAS_GOGGLES.get());
+                    })
+                    .build()
+    );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

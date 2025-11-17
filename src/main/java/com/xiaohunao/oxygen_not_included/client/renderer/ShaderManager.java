@@ -1,4 +1,4 @@
-package com.xiaohunao.oxygen_not_included.client;
+package com.xiaohunao.oxygen_not_included.client.renderer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.xiaohunao.oxygen_not_included.OxygenNotIncluded;

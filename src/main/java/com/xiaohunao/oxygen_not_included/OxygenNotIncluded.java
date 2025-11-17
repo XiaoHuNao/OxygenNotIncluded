@@ -1,15 +1,10 @@
 package com.xiaohunao.oxygen_not_included;
 
+import com.xiaohunao.oxygen_not_included.common.init.*;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
-import com.xiaohunao.oxygen_not_included.common.init.ONIComponents;
-import com.xiaohunao.oxygen_not_included.common.init.ONIBlockEntityTypes;
-import com.xiaohunao.oxygen_not_included.common.init.ONIBlocks;
-import com.xiaohunao.oxygen_not_included.common.init.ONICreativeTabs;
-import com.xiaohunao.oxygen_not_included.common.init.ONIGases;
-import com.xiaohunao.oxygen_not_included.common.init.ONIItems;
-import com.xiaohunao.oxygen_not_included.common.init.ONIRegistries;
+import com.xiaohunao.oxygen_not_included.common.network.ONINetwork;
 
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -26,13 +21,17 @@ public class OxygenNotIncluded {
 
     public OxygenNotIncluded(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(ONIRegistries::registerRegistries);
+        modEventBus.addListener(ONINetwork::register);
 
         ONIComponents.DATA_COMPONENT_TYPES.register(modEventBus);
         ONIBlocks.BLOK.register(modEventBus);
         ONIBlockEntityTypes.BLOCK_ENTITY_TYPE.register(modEventBus);
         ONIGases.GAS.register(modEventBus);
+        ONIGasInteractions.register(modEventBus);
         ONICreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
         ONIItems.ITEM.register(modEventBus);
+        ONIHeatSources.HEAT_SOURCE.register(modEventBus);
+        ONIMapCodecs.GAS_INTERACTION_CODEC.register(modEventBus);
     }
 
     public static ResourceLocation asResource(String path) {

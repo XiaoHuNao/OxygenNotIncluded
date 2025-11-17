@@ -10,9 +10,16 @@ import net.minecraft.world.level.block.Block;
 public class ONIBlocks {
     public static final FlexibleRegister<Block> BLOK = FlexibleRegister.create(Registries.BLOCK, OxygenNotIncluded.MODID);
 
+
     public static final FlexibleHolder<Block, GasBlock> OXYGEN = BLOK.registerStatic("oxygen",
-        () -> new GasBlock(ONIGases.OXYGEN.get()));
+        () -> new GasBlock(ONIGases.OXYGEN));
 
     public static final FlexibleHolder<Block, GasBlock> CARBON_DIOXIDE = BLOK.registerStatic("carbon_dioxide",
-        () -> new GasBlock(ONIGases.CARBON_DIOXIDE.get()));
+        () -> new GasBlock(ONIGases.CARBON_DIOXIDE));
+
+    public static final FlexibleHolder<Block, GasBlock> HYDROGEN = BLOK.registerStatic("hydrogen",
+        () -> new GasBlock(ONIGases.HYDROGEN));
+
+    public static final FlexibleHolder<Block, GasBlock> CHLORINE = BLOK.registerStatic("chlorine",
+        () -> new GasBlock(ONIGases.CHLORINE));
 }

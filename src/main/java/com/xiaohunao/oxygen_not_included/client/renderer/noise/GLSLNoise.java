@@ -1,4 +1,4 @@
-package com.xiaohunao.oxygen_not_included.client.noise;
+package com.xiaohunao.oxygen_not_included.client.renderer.noise;
 
 public class GLSLNoise {
 

@@ -19,7 +19,7 @@ public final class WorldUtils {
         if (level == null || pos == null || gas == null) return false;
         BlockState state = level.getBlockState(pos);
         if (!state.canBeReplaced()) return false;
-        return level.setBlock(pos, gas.createBlock(), Block.UPDATE_ALL_IMMEDIATE);
+        return level.setBlock(pos, gas.createBlock().defaultBlockState(), Block.UPDATE_ALL_IMMEDIATE);
     }
 
 }

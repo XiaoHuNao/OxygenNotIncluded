@@ -5,9 +5,14 @@ import com.xiaohunao.oxygen_not_included.common.capability.Capabilities;
 import com.xiaohunao.oxygen_not_included.common.init.ONIItems;
 import com.xiaohunao.oxygen_not_included.common.item.GasTankItem;
 
+import com.xiaohunao.oxygen_not_included.common.util.TemperatureType;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 /**
  * 公共事件处理器
@@ -50,6 +55,16 @@ public class CommonEvents {
         );
 
         OxygenNotIncluded.LOGGER.info("Gas capabilities registered");
+    }
+
+    @SubscribeEvent
+    public static void onPlayerInteractRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        Level level = event.getLevel();
+        InteractionHand hand = event.getHand();
+        Player player = event.getEntity();
+        if (level.isClientSide() || hand != InteractionHand.MAIN_HAND) {
+            return;
+        }
     }
 }
 
