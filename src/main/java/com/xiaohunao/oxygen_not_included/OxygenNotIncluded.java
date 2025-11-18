@@ -19,6 +19,8 @@ public class OxygenNotIncluded {
     public static final String MODID = "oxygen_not_included";
     public static final Logger LOGGER = LogUtils.getLogger();
 
+    public static final float scale = 0.025F;
+
     public OxygenNotIncluded(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(ONIRegistries::registerRegistries);
         modEventBus.addListener(ONINetwork::register);

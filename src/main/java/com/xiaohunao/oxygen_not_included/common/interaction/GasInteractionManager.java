@@ -18,7 +18,6 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
-import java.util.Objects;
 
 public final class GasInteractionManager extends BaseDynamicLoader<GasInteraction> {
 
@@ -33,6 +32,9 @@ public final class GasInteractionManager extends BaseDynamicLoader<GasInteractio
 		}
 
 		BlockPos sourcePos = source.getBlockPos();
+
+		handleSelfInteractions(level, source, sourcePos);
+
 		for (Direction direction : Direction.values()) {
 			BlockPos targetPos = sourcePos.relative(direction);
 			BlockState targetState = level.getBlockState(targetPos);
@@ -65,6 +67,18 @@ public final class GasInteractionManager extends BaseDynamicLoader<GasInteractio
 		}
 	}
 
+	private static void handleSelfInteractions(Level level, GasBlockEntity source, BlockPos sourcePos) {
+		AABB selfBounds = new AABB(sourcePos);
+		List<Entity> entities = level.getEntitiesOfClass(Entity.class, selfBounds);
+		entities.removeIf(entity -> entity == null || entity.isRemoved());
+		if (entities.isEmpty()) {
+			return;
+		}
+
+		GasInteractionContext.Builder context = new GasInteractionContext.Builder(level, source, sourcePos, Direction.UP);
+		dispatch(GasInteractionCategory.ENTITY, context.entities(entities).build());
+	}
+
 	private static void dispatch(GasInteractionCategory category, GasInteractionContext context) {
 		Registry<GasInteraction> registry = ONIRegistries.GAS_INTERACTION;
 
@@ -78,19 +92,6 @@ public final class GasInteractionManager extends BaseDynamicLoader<GasInteractio
 			}
 			interaction.apply(context);
 		}
-	}
-
-	private static AABB intersect(AABB first, AABB second) {
-		double minX = Math.max(first.minX, second.minX);
-		double minY = Math.max(first.minY, second.minY);
-		double minZ = Math.max(first.minZ, second.minZ);
-		double maxX = Math.min(first.maxX, second.maxX);
-		double maxY = Math.min(first.maxY, second.maxY);
-		double maxZ = Math.min(first.maxZ, second.maxZ);
-		if (maxX <= minX || maxY <= minY || maxZ <= minZ) {
-			return new AABB(minX, minY, minZ, minX, minY, minZ);
-		}
-		return new AABB(minX, minY, minZ, maxX, maxY, maxZ);
 	}
 }
 

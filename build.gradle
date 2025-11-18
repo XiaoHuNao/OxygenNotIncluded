@@ -104,7 +104,8 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 
 dependencies {
-    implementation(jarJar(group: 'com.xiaohunao', name: 'xhn_lib', version: '1.21.1-0.0.2'))
+//    implementation(jarJar(group: 'com.xiaohunao', name: 'xhn_lib', version: '1.21.1-0.0.2'))
+    implementation (project(":XHN-Lib"))
 
     implementation "curse.maven:spark-361579:6225208"
     // Example mod dependency with JEI

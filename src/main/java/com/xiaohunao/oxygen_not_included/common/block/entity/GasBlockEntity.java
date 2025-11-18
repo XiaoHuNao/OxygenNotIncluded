@@ -13,7 +13,6 @@ import com.xiaohunao.oxygen_not_included.common.init.ONIBlockEntityTypes;
 import com.xiaohunao.oxygen_not_included.common.init.ONIRegistries;
 import com.xiaohunao.oxygen_not_included.common.interaction.GasInteractionManager;
 
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -134,8 +133,8 @@ public class GasBlockEntity extends BlockEntity {
 			GasBlockEntity neighbor = getGasEntity(level, neighborPos);
 			if (neighbor == null) {
 				BlockState neighborState = level.getBlockState(neighborPos);
-				// 仅在可被替换时放置气体
-				if (!neighborState.canBeReplaced()) {
+				// 仅在可被替换且非液体/流体方块时放置气体，避免把液体与流体替换掉
+				if (!neighborState.canBeReplaced() || !neighborState.getFluidState().isEmpty()) {
 					continue;
 				}
 				boolean placed = level.setBlock(neighborPos, this.gas.createBlock().defaultBlockState(), 3);
@@ -355,7 +354,7 @@ public class GasBlockEntity extends BlockEntity {
 			return;
 		}
 		double current = getKelvin();
-		if (Math.abs(current - kelvin) < 0.01D) {
+		if (Math.abs(current - kelvin) < 1.0E-6D) {
 			return;
 		}
 		this.kelvin = kelvin;

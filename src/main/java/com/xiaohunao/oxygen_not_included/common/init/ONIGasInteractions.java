@@ -3,6 +3,7 @@ package com.xiaohunao.oxygen_not_included.common.init;
 import com.xiaohunao.oxygen_not_included.OxygenNotIncluded;
 import com.xiaohunao.oxygen_not_included.common.interaction.GasInteraction;
 import com.xiaohunao.oxygen_not_included.common.interaction.interaction.HeatSourceInteraction;
+import com.xiaohunao.oxygen_not_included.common.interaction.interaction.HotGasSmeltingInteraction;
 import com.xiaohunao.oxygen_not_included.common.interaction.interaction.OverpressureBlockInteraction;
 
 import com.xiaohunao.xhn_lib.api.register.holder.FlexibleHolder;
@@ -18,7 +19,7 @@ public final class ONIGasInteractions {
 
 	public static final FlexibleHolder<GasInteraction, OverpressureBlockInteraction> OVERPRESSURE = GAS_INTERACTIONS.registerStatic("overpressure_block_interaction", OverpressureBlockInteraction::new);
 	public static final FlexibleHolder<GasInteraction, HeatSourceInteraction> HEAT_SOURCE = GAS_INTERACTIONS.registerStatic("heat_source_interaction", HeatSourceInteraction::new);
-
+	public static final FlexibleHolder<GasInteraction, HotGasSmeltingInteraction> HOT_GAS_SMELTING = GAS_INTERACTIONS.registerStatic("hot_gas_smelting_interaction", HotGasSmeltingInteraction::new);
 
 	public static void register(IEventBus bus) {
 		GAS_INTERACTIONS.register(bus);
